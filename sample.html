@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link data-require="bootstrap-css@2.3.2" data-semver="2.3.2" rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" />
+    <link data-require="datatable-css@1.10.7" data-semver="1.10.7" rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css" />
+    
+    <script data-require="jquery.js@1.11.3" data-semver="1.11.3" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script data-require="datatable.js@1.10.7" data-semver="1.10.7" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+
+    <script data-require="angular-datatable.js@1.1.5" data-semver="1.1.5" src="angular-datatables.min.js"></script>
+    <style>
+        table, th, td {
+            border:solid 1px #DDD;
+            padding:3px;
+            font:14px Verdana;
+            text-align:center;
+        }
+        th {font-weight:bold;}
+    </style>
+</head>
+<body>
+    <div ng-app="myApp" 
+        ng-controller="myController"  style="padding:20px;margin-top:30px;i">
+
+           <table datatable="ng" dt-options="dtOptions" class="table table-hover" >
+	<thead>
+            <tr>
+		<th></th>
+                <th>ID</th>
+                    <th>FirstName</th>
+                        <th>LastName</th>
+			<th>Product</th>
+			<th>Quantity</th>
+			<th>Unitprice</th>
+			
+            </tr>
+	</thead>
+            <tr ng-repeat="birds in list">
+		<td><input id="chkCustomer_{{birds.Id}}" type="checkbox" name="chk" ng-model="birds.Selected"  /></td>
+                <td>{{birds.ID}}</td>
+                    <td>{{birds.FirstName}}</td>
+                        <td>{{birds.LastName}}</td>
+				<td>{{birds.Product}}</td>
+					<td>{{birds.Quantity}}</td>
+						<td>{{birds.Unitprice}}</td>
+							
+            </tr>
+        </table>
+<br />
+        <br />
+
+	<button type="button" value="Get" ng-click="getvalue()"  class="btn btn-primary">Get Tax Invoice</button>	
+	<br /><br />
+	<table align="center">
+        <thead>
+            <tr>
+                <th>ID</th>
+                    
+                        
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Unitprice</th>
+			<th>Tax Amount</th>
+			<th>Total</th>
+
+                        
+            </tr>
+        </thead>
+            <tr ng-repeat="longlist1 in longlist" >
+                
+                <td>{{longlist1.ID}}</td>
+                    
+                        
+                                <td>{{longlist1.Product}}</td>
+                                        <td>{{longlist1.Quantity}}</td>
+                                                <td>{{longlist1.Unitprice}}</td>
+	<td>{{longlist1.tax}}</td>
+	<td>{{longlist1.total}}</td>
+                                
+            </tr>
+		<tr>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td>Grand total</td>
+		<td>{{ grandtotal }}</td>
+		</tr>
+        </table>
+
+
+
+    </div>
+<script>
+    var app = angular.module('myApp', ['datatables']);
+    app.controller('myController',
+        function ($scope, $http, DTOptionsBuilder) {
+	
+	// DataTables configurable options
+    $scope.dtOptions = DTOptionsBuilder.newOptions()
+        .withDisplayLength(5)
+        .withOption('bLengthChange', false);
+
+            var request = {
+                method: 'get',
+                url: 'sample.json',
+                dataType: 'json',
+                contentType: "application/json"
+            };
+
+            $scope.arrBirds = new Array;
+
+            $http(request)
+                .success(function (jsonData) {
+                    $scope.arrBirds = jsonData;
+                    $scope.list = $scope.arrBirds;
+                })
+                .error(function () {
+
+                });
+		$scope.getvalue=function(){
+		
+		var message= 0;
+		$scope.single=new Array;
+	for(var i=0; i <  $scope.list.length; i++){
+	
+	if( $scope.list[i].Selected){
+	var tax=($scope.list[i].Quantity*$scope.list[i].Unitprice)*0.06;
+	var total=(tax)+($scope.list[i].Quantity*$scope.list[i].Unitprice);
+	$scope.list[i].tax=Math.round(tax);
+	$scope.list[i].total=total;
+	message+=total;
+	$scope.single.push($scope.list[i]);
+		$scope.longlist=$scope.single;
+		$scope.grandtotal=Math.round(message);
+	//	console.log($scope.grandtotal);
+}
+	}
+
+
+        }
+});
+</script>
+</body>
+</html>
